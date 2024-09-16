@@ -1,5 +1,6 @@
 package net.orquatic.oquamod;
 
+import net.orquatic.oquamod.item.Moditems;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -51,6 +52,8 @@ public class OquaMod {
         // Do not add this line if there are no @SubscribeEvent-annotated functions in this class, like onServerStarting() below.
         NeoForge.EVENT_BUS.register(this);
 
+        Moditems.register(modEventBus);
+
         // Register the item to a creative tab
         modEventBus.addListener(this::addCreative);
 
@@ -64,7 +67,13 @@ public class OquaMod {
 
     // Add the example block item to the building blocks tab
     private void addCreative(BuildCreativeModeTabContentsEvent event) {
+        if (event.getTabKey() == CreativeModeTabs.INGREDIENTS) {
+            event.accept(Moditems.OQUANITE);}
 
+        if (event.getTabKey() == CreativeModeTabs.INGREDIENTS) {
+            event.accept(Moditems.RAW_OQUANITE);
+
+        }
     }
 
     // You can use SubscribeEvent and let the Event Bus discover methods to call

@@ -15,6 +15,12 @@ public class Moditems {
     public static final DeferredItem<Item> RAW_OQUANITE = ITEMS.register("raw_oquanite",
             () -> new Item(new Item.Properties()));
 
+    public static final DeferredItem<Item> SICKLE = ITEMS.register("sickle",
+            () -> new Item(new Item.Properties()));
+
+    public static final DeferredItem<Item> KRONA = ITEMS.register("krona",
+            () -> new Item(new Item.Properties()));
+
 
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);

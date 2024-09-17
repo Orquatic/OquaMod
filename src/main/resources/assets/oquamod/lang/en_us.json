@@ -1,4 +1,10 @@
 {
   "item.oquamod.oquanite": "Oquanite",
-  "item.oquamod.raw_oquanite": "Raw Oquanite"
+  "item.oquamod.raw_oquanite": "Raw Oquanite",
+  "item.oquamod.krona": "Krona",
+  "item.oquamod.sickle": "Sickle",
+
+
+  "block.oquamod.oquanite_block": "Block of Oquanite",
+  "block.oquamod.oquanite_ore": "Oquanite Ore"
 }

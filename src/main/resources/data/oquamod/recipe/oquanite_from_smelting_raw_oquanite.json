@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:blasting",
+  "category": "misc",
+  "cookingtime": 100,
+  "experience": 0.25,
+  "group": "oquanite",
+  "ingredient": {
+    "item": "oquamod:raw_oquanite"
+  },
+  "result": {
+    "count": 1,
+    "id": "oquamod:oquanite"
+  }
+}

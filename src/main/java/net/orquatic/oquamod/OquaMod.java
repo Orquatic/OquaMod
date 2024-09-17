@@ -1,6 +1,7 @@
 package net.orquatic.oquamod;
 
 import net.orquatic.oquamod.block.Modblocks;
+import net.orquatic.oquamod.item.ModCreativeModeTabs;
 import net.orquatic.oquamod.item.Moditems;
 import org.slf4j.Logger;
 
@@ -52,6 +53,8 @@ public class OquaMod {
         // Note that this is necessary if and only if we want *this* class (ExampleMod) to respond directly to events.
         // Do not add this line if there are no @SubscribeEvent-annotated functions in this class, like onServerStarting() below.
         NeoForge.EVENT_BUS.register(this);
+
+        ModCreativeModeTabs.register(modEventBus);
 
         Moditems.register(modEventBus);
         Modblocks.register(modEventBus);

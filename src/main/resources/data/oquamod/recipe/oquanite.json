@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredient": [
+    {
+      "item": "oqua:oquanite_block"
+    }
+  ],
+  "result": {
+    "count": 9,
+    "id": "oquamod:oquanite"
+  }
+}

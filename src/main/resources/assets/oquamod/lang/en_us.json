@@ -4,7 +4,9 @@
   "item.oquamod.krona": "Krona",
   "item.oquamod.sickle": "Sickle",
 
-
   "block.oquamod.oquanite_block": "Block of Oquanite",
-  "block.oquamod.oquanite_ore": "Oquanite Ore"
+  "block.oquamod.oquanite_ore": "Oquanite Ore",
+
+  "creativetab.oquamod.oquamod_items": "OquaMod Items",
+  "creativetab.oquamod.oquamod_blocks": "OquaMod Blocks"
 }

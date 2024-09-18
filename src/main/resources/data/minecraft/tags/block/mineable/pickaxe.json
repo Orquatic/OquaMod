@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "oquamod:oquanite_block",
+    "oquamod:oquanite_ore",
+    "oquamod:oquanite_deepslate_ore"
+  ]
+}

@@ -3,7 +3,6 @@ package net.orquatic.oquamod.block;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.PickaxeItem;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DropExperienceBlock;
 import net.minecraft.world.level.block.SoundType;
@@ -26,7 +25,10 @@ public class Modblocks {
                     .strength(4f).requiresCorrectToolForDrops().sound(SoundType.AMETHYST_CLUSTER)));
     public static final DeferredBlock<Block> OQUANITE_ORE = registerBlock("oquanite_ore",
             () -> new DropExperienceBlock(UniformInt.of(2,4),
-                    BlockBehaviour.Properties.of().strength(4.5f).requiresCorrectToolForDrops().sound(SoundType.STONE)));
+                    BlockBehaviour.Properties.of().strength(3f).requiresCorrectToolForDrops().sound(SoundType.STONE)));
+    public static final DeferredBlock<Block> OQUANITE_DEEPSLATE_ORE = registerBlock("oquanite_deepslate_ore",
+            () -> new DropExperienceBlock(UniformInt.of(3,6),
+                    BlockBehaviour.Properties.of().strength(4f).requiresCorrectToolForDrops().sound(SoundType.STONE)));
 
 
     private static <T extends Block> DeferredBlock<T> registerBlock(String name, Supplier<T> block) {

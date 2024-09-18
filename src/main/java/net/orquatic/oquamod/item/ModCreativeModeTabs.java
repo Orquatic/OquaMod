@@ -30,6 +30,7 @@ public class ModCreativeModeTabs {
                     .title(Component.translatable("creativetab.oquamod.oquamod_blocks"))
                     .displayItems((ItemDisplayParameters, output)-> {
                         output.accept(new ItemStack(Modblocks.OQUANITE_ORE.get()));
+                        output.accept(new ItemStack(Modblocks.OQUANITE_DEEPSLATE_ORE.get()));
                         output.accept(new ItemStack(Modblocks.OQUANITE_BLOCK.get()));
                     }).build());
 

@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "oquamod:block/oquanite_deepslate_ore"
+  }
+}

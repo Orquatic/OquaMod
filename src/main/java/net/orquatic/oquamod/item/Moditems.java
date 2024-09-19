@@ -20,6 +20,8 @@ public class Moditems {
 
     public static final DeferredItem<Item> KRONA = ITEMS.register("krona",
             () -> new Item(new Item.Properties()));
+    public static final DeferredItem<Item> OQUANITE_INGOT = ITEMS.register("oquanite_ingot",
+            () -> new Item(new Item.Properties()));
 
 
     public static void register(IEventBus eventBus) {

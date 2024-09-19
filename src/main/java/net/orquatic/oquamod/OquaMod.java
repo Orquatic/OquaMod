@@ -77,6 +77,7 @@ public class OquaMod {
             event.accept(Moditems.RAW_OQUANITE);
             event.accept(Moditems.SICKLE);
             event.accept(Moditems.KRONA);
+            event.accept(Moditems.OQUANITE_INGOT);
         }
 
         if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS){

@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "I": {
+      "item": "minecraft:netherite_ingot"
+    },
+    "A": {
+      "item": "oquamod:oquanite"
+    },
+    "C": {
+      "item": "minecraft:crying_obsidian"
+    }
+  },
+  "pattern": [
+    "CIC",
+    "AAA",
+    "CIC"
+],
+  "result": {
+    "count": 1,
+    "id": "oquamod:oquanite_ingot"
+  }
+}

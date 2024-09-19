@@ -22,6 +22,9 @@ public class ModCreativeModeTabs {
                     .displayItems((ItemDisplayParameters, output)-> {
                         output.accept(new ItemStack(Moditems.OQUANITE.get()));
                         output.accept(new ItemStack(Moditems.RAW_OQUANITE.get()));
+                        output.accept(new ItemStack(Moditems.SICKLE.get()));
+                        output.accept(new ItemStack(Moditems.KRONA.get()));
+                        output.accept(new ItemStack(Moditems.OQUANITE_INGOT.get()));
                     }).build());
 
         public static final Supplier<CreativeModeTab> OQUAMOD_BLOCK_TAB = CREATIVE_MODE_TAB.register("oquamod_blocks_tab",

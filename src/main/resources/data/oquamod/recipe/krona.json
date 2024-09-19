@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "I": {
+      "item": "minecraft:gold_ingot"
+    },
+    "A": {
+      "item": "minecraft:emerald"
+    }
+  },
+  "pattern": [
+    "III",
+    "IAI",
+    "III"
+],
+  "result": {
+    "count": 3,
+    "id": "oquamod:krona"
+  }
+}

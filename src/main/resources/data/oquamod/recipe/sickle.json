@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "A": {
+      "item": "oquamod:oquanite"
+    }
+  },
+  "pattern": [
+    "III",
+    "IAI",
+    "III"
+],
+  "result": {
+    "count": 3,
+    "id": "oquamod:sickle"
+  }
+}

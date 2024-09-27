@@ -51,5 +51,6 @@ public class CoinWidget extends AbstractWidget {
     }
 
     public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, DeltaTracker partialTick) {
+
     }
 }

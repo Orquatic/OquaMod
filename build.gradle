@@ -113,6 +113,7 @@ publishing {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Ensure UTF-8 encoding
+    options.compilerArgs << "-Xlint:deprecation"
 }
 
 idea {

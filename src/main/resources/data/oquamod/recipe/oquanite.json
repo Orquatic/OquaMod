@@ -1,9 +1,9 @@
 {
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
-  "ingredient": [
+  "ingredients": [
     {
-      "item": "oqua:oquanite_block"
+      "item": "oquamod:oquanite_block"
     }
   ],
   "result": {

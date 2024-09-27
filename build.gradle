@@ -55,7 +55,7 @@ neoForge {
     }
 
     mods {
-        "${mod_id}" {
+        "oquamod" {
             sourceSet(sourceSets.main) // Binding sources to mod
         }
     }

@@ -5,6 +5,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
@@ -16,7 +17,7 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.orquatic.oquamod.block.Modblocks;
 import net.orquatic.oquamod.item.ModCreativeModeTabs;
 import net.orquatic.oquamod.item.Moditems;
@@ -29,7 +30,6 @@ public class OquaMod {
 
     public OquaMod() {
         IEventBus modEventBus = ModLoadingContext.get().getActiveContainer().getEventBus();
-        assert modEventBus != null;
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::clientSetup);
         ModCreativeModeTabs.register(modEventBus);
@@ -43,16 +43,13 @@ public class OquaMod {
 
     private void clientSetup(final FMLClientSetupEvent event) {
         if (FMLEnvironment.dist == Dist.CLIENT) {
-            // Register client events with the game event bus
             NeoForge.EVENT_BUS.register(new OquaModClientEvents());
-
-            // Initialize the ResourceLocation and set the textureLoaded flag to true
             KRONA_TEXTURE = ResourceLocation.fromNamespaceAndPath(OquaMod.MOD_ID, "textures/item/krona.png");
             textureLoaded = true; // Set the boolean to true once the texture is properly loaded
         }
     }
 
-    // Class to handle the player's coin (Krona) data using capabilities.
+    // Class to handle the player's coin (Krona) data.
     public static class PlayerCoinData {
         private static final String KRONA_TAG = "Krona";
 
@@ -101,14 +98,28 @@ public class OquaMod {
         }
     }
 
-    // Event listener to update the GUI when coins are collected or dropped.
+    // Event listener to detect when a Krona is crafted and add coins to the player's data.
     @SubscribeEvent
-    public void onPlayerTick(PlayerTickEvent event) {
-        Player player = event.getPlayer();  // Use getPlayer() to get the Player object
-        if (player.getLevel().isClientSide()) return;  // Use getLevel() instead of directly accessing level
+    public void onItemCrafted(PlayerEvent.ItemCraftedEvent event) {
+        Player player = event.getEntity();  // Get the player who crafted the item
+        ItemStack craftedItem = event.getCrafting();  // Get the crafted item
 
-        // Here you would add logic to check if coins were picked up or dropped
-        int kronaCount = PlayerCoinData.getCoins(player);  // Get the current coin count
-        // You could add more logic here to track or update the coin count
+        // Check if the crafted item is the Krona
+        if (craftedItem.getItem().equals(Moditems.KRONA.get())) {
+            int kronaAmount = craftedItem.getCount();  // Get the number of Kronas crafted
+            PlayerCoinData.addCoins(player, kronaAmount);  // Add crafted Kronas to the player's coin data
+
+            // Optional: Print to console for debugging
+            System.out.println("Player crafted " + kronaAmount + " Kronas. Total: " + PlayerCoinData.getCoins(player));
+        }
+    }
+
+    // Method to synchronize the Krona count with the client (if needed)
+    public static void syncKronaCount(Player player) {
+        // Use getCommandSenderWorld() to check the client/server side
+        if (!player.getCommandSenderWorld().isClientSide()) {
+            int kronaCount = PlayerCoinData.getCoins(player);
+            // You can use a custom packet here to send the kronaCount to the client for display
+        }
     }
 }

@@ -1,118 +1,95 @@
 package net.orquatic.oquamod;
 
-import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
-import net.orquatic.oquamod.block.Modblocks;
-import net.orquatic.oquamod.item.ModCreativeModeTabs;
-import net.orquatic.oquamod.item.Moditems;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.common.Mod;
-
-import org.slf4j.Logger;
-
-import com.mojang.logging.LogUtils;
-
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.food.FoodProperties;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.CreativeModeTabs;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.material.MapColor;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
-import net.neoforged.neoforge.event.server.ServerStartingEvent;
-import net.neoforged.neoforge.registries.DeferredBlock;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredItem;
+import net.orquatic.oquamod.block.Modblocks;
+import net.orquatic.oquamod.item.ModCreativeModeTabs;
+import net.orquatic.oquamod.item.Moditems;
+import net.minecraft.nbt.CompoundTag;
 
-
-
-// The value here should match an entry in the META-INF/neoforge.mods.toml file
 @Mod(OquaMod.MOD_ID)
 public class OquaMod {
     public static final String MOD_ID = "oquamod";
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static ResourceLocation KRONA_TEXTURE;
+    private static boolean textureLoaded = false;  // Boolean flag to check if texture is loaded
 
-
-    // The constructor for the mod class is the first code that is run when your mod is loaded.
-    // FML will recognize some parameter types like IEventBus or ModContainer and pass them in automatically.
-    public OquaMod(IEventBus modEventBus, ModContainer modContainer) {
-        // Register the commonSetup method for modloading
+    public OquaMod() {
+        IEventBus modEventBus = ModLoadingContext.get().getActiveContainer().getEventBus();
+        assert modEventBus != null;
         modEventBus.addListener(this::commonSetup);
-
-        // Register ourselves for server and other game events we are interested in.
-        // Note that this is necessary if and only if we want *this* class (ExampleMod) to respond directly to events.
-        // Do not add this line if there are no @SubscribeEvent-annotated functions in this class, like onServerStarting() below.
-        NeoForge.EVENT_BUS.register(this);
-
+        modEventBus.addListener(this::clientSetup);
         ModCreativeModeTabs.register(modEventBus);
-
-        // Register event listeners and item registration
         Moditems.ITEMS.register(modEventBus);
-
-        Moditems.register(modEventBus);
         Modblocks.register(modEventBus);
-        KronaCounterGui.onRenderGuiOverlay((RenderGuiLayerEvent.Post) modEventBus);
-
-        // Register the item to a creative tab
-        modEventBus.addListener(this::addCreative);
-
-        // Register our mod's ModConfigSpec so that FML can create and load the config file for us
-        modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
-
-
 
     private void commonSetup(final FMLCommonSetupEvent event) {
-
+        // Common setup code here
     }
 
-    // Add the example block item to the building blocks tab
-    private void addCreative(BuildCreativeModeTabContentsEvent event) {
-        if (event.getTabKey() == CreativeModeTabs.INGREDIENTS) {
-            event.accept(Moditems.OQUANITE);
-            event.accept(Moditems.RAW_OQUANITE);
-            event.accept(Moditems.SICKLE);
-            event.accept(Moditems.KRONA);
-            event.accept(Moditems.OQUANITE_INGOT);
-        }
+    private void clientSetup(final FMLClientSetupEvent event) {
+        if (FMLEnvironment.dist == Dist.CLIENT) {
+            // Register client events with the game event bus
+            NeoForge.EVENT_BUS.register(new OquaModClientEvents());
 
-        if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS){
-            event.accept(Modblocks.OQUANITE_BLOCK);
-            event.accept(Modblocks.OQUANITE_ORE);
+            // Initialize the ResourceLocation and set the textureLoaded flag to true
+            KRONA_TEXTURE = ResourceLocation.fromNamespaceAndPath(OquaMod.MOD_ID, "textures/item/krona.png");
+            textureLoaded = true;  // Set the boolean to true once the texture is properly loaded
         }
     }
 
-        // You can use SubscribeEvent and let the Event Bus discover methods to call
+    // Class to handle the player's coin (Krona) data.
+    public static class PlayerCoinData {
+        private static final String KRONA_TAG = "Krona";
+
+        public static void addCoins(Player player, int amount) {
+            CompoundTag playerData = player.getPersistentData();
+            int currentCoins = playerData.getInt(KRONA_TAG);
+            playerData.putInt(KRONA_TAG, currentCoins + amount);
+        }
+
+        public static int getCoins(Player player) {
+            CompoundTag playerData = player.getPersistentData();
+            return playerData.getInt(KRONA_TAG);
+        }
+    }
+
+    // Class to handle client-side GUI rendering events.
+    public static class OquaModClientEvents {
+
         @SubscribeEvent
-        public void onServerStarting (ServerStartingEvent event){
+        public void onRenderGuiOverlay(RenderGuiLayerEvent.Post event) {
+            Minecraft minecraft = Minecraft.getInstance();
+            Player player = minecraft.player;
 
+            if (player == null || !textureLoaded) return;  // Check if texture is loaded
+
+            int kronaCount = PlayerCoinData.getCoins(player);
+            int x = 10;  // X-coordinate for rendering
+            int y = 10;  // Y-coordinate for rendering
+
+            GuiGraphics guiGraphics = event.getGuiGraphics();
+            RenderSystem.setShaderTexture(0, KRONA_TEXTURE);
+
+            // Render the Krona icon at the given coordinates if the texture is loaded
+            guiGraphics.blit(KRONA_TEXTURE, x, y, 0, 0, 16, 16, 16, 16);
+
+            // Render the Krona count next to the icon
+            guiGraphics.drawString(minecraft.font, "Kronas: " + kronaCount, x + 20, y + 5, 0xFFFFFF);
         }
-
-        // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
-        @EventBusSubscriber(modid = MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
-        public static class ClientModEvents {
-            @SubscribeEvent
-            public static void onClientSetup(FMLClientSetupEvent event) {
-        }
-
     }
 }
-

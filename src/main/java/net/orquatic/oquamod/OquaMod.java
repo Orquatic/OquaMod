@@ -6,7 +6,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -17,10 +16,13 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.capabilities.EntityCapability;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.orquatic.oquamod.block.Modblocks;
 import net.orquatic.oquamod.item.ModCreativeModeTabs;
 import net.orquatic.oquamod.item.Moditems;
+import net.orquatic.oquamod.network.KronaCountSyncPacket;
+import net.orquatic.oquamod.network.OquaModNetwork;
 
 @Mod(OquaMod.MOD_ID)
 public class OquaMod {
@@ -38,7 +40,8 @@ public class OquaMod {
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
-        // Common setup code here
+        OquaModNetwork.registerPackets(); // Register network packets
+        registerCapabilities();  // Register capability attacher
     }
 
     private void clientSetup(final FMLClientSetupEvent event) {
@@ -49,27 +52,31 @@ public class OquaMod {
         }
     }
 
-    // Class to handle the player's coin (Krona) data.
-    public static class PlayerCoinData {
-        private static final String KRONA_TAG = "Krona";
+    // Register entity capabilities
+    private void registerCapabilities() {
+        EntityCapability.createVoid(
+                ResourceLocation.fromNamespaceAndPath(OquaMod.MOD_ID, "player_coin_capability"), PlayerCoinCapability.class
+        );
+    }
 
-        // Adds coins to the player's data.
-        public static void addCoins(Player player, int amount) {
-            CompoundTag playerData = player.getPersistentData();
-            int currentCoins = playerData.getInt(KRONA_TAG);
-            playerData.putInt(KRONA_TAG, currentCoins + amount);
+    // Player Coin Capability class
+    public static class PlayerCoinCapability {
+        public static final EntityCapability<PlayerCoinCapability, Void> INSTANCE = EntityCapability.createVoid(
+                ResourceLocation.fromNamespaceAndPath(OquaMod.MOD_ID, "player_coin_capability"), PlayerCoinCapability.class
+        );
+
+        private int coins;
+
+        public void addCoins(int amount) {
+            this.coins += amount;
         }
 
-        // Gets the current number of coins the player has.
-        public static int getCoins(Player player) {
-            CompoundTag playerData = player.getPersistentData();
-            return playerData.getInt(KRONA_TAG);
+        public int getCoins() {
+            return coins;
         }
 
-        // Sets the coin count directly.
-        public static void setCoins(Player player, int amount) {
-            CompoundTag playerData = player.getPersistentData();
-            playerData.putInt(KRONA_TAG, amount);
+        public void setCoins(int amount) {
+            this.coins = amount;
         }
     }
 
@@ -83,18 +90,22 @@ public class OquaMod {
 
             if (player == null || !textureLoaded) return; // Check if texture is loaded
 
-            int kronaCount = PlayerCoinData.getCoins(player); // Get the player's current coin count
-            int x = 10; // X-coordinate for rendering
-            int y = 10; // Y-coordinate for rendering
+            // Use EntityCapability to access the player's capability
+            PlayerCoinCapability coinsCap = player.getCapability(PlayerCoinCapability.INSTANCE, null);
+            if (coinsCap != null) {
+                int kronaCount = coinsCap.getCoins(); // Get the player's current coin count
+                int x = 10; // X-coordinate for rendering
+                int y = 10; // Y-coordinate for rendering
 
-            GuiGraphics guiGraphics = event.getGuiGraphics();
-            RenderSystem.setShaderTexture(0, KRONA_TEXTURE);
+                GuiGraphics guiGraphics = event.getGuiGraphics();
+                RenderSystem.setShaderTexture(0, KRONA_TEXTURE);
 
-            // Render the Krona icon at the given coordinates if the texture is loaded
-            guiGraphics.blit(KRONA_TEXTURE, x, y, 0, 0, 16, 16, 16, 16);
+                // Render the Krona icon at the given coordinates if the texture is loaded
+                guiGraphics.blit(KRONA_TEXTURE, x, y, 0, 0, 16, 16, 16, 16);
 
-            // Render the Krona count next to the icon
-            guiGraphics.drawString(minecraft.font, "Kronas: " + kronaCount, x + 20, y + 5, 0xFFFFFF);
+                // Render the Krona count next to the icon
+                guiGraphics.drawString(minecraft.font, "Kronas: " + kronaCount, x + 20, y + 5, 0xFFFFFF);
+            }
         }
     }
 
@@ -107,10 +118,14 @@ public class OquaMod {
         // Check if the crafted item is the Krona
         if (craftedItem.getItem().equals(Moditems.KRONA.get())) {
             int kronaAmount = craftedItem.getCount();  // Get the number of Kronas crafted
-            PlayerCoinData.addCoins(player, kronaAmount);  // Add crafted Kronas to the player's coin data
 
-            // Optional: Print to console for debugging
-            System.out.println("Player crafted " + kronaAmount + " Kronas. Total: " + PlayerCoinData.getCoins(player));
+            // Access the player's capability
+            PlayerCoinCapability coinsCap = player.getCapability(PlayerCoinCapability.INSTANCE, null);
+            if (coinsCap != null) {
+                coinsCap.addCoins(kronaAmount);  // Add crafted Kronas to the player's coin data
+                // Optional: Print to console for debugging
+                System.out.println("Player crafted " + kronaAmount + " Kronas. Total: " + coinsCap.getCoins());
+            }
         }
     }
 
@@ -118,8 +133,13 @@ public class OquaMod {
     public static void syncKronaCount(Player player) {
         // Use getCommandSenderWorld() to check the client/server side
         if (!player.getCommandSenderWorld().isClientSide()) {
-            int kronaCount = PlayerCoinData.getCoins(player);
-            // You can use a custom packet here to send the kronaCount to the client for display
+            PlayerCoinCapability coinsCap = player.getCapability(PlayerCoinCapability.INSTANCE, null);
+            if (coinsCap != null) {
+                int kronaCount = coinsCap.getCoins();
+                OquaModNetwork.CHANNEL.sendToPlayer(
+                        player, new KronaCountSyncPacket(kronaCount)
+                );
+            }
         }
     }
 }

@@ -12,8 +12,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class KronaCountSyncPacket implements CustomPacketPayload {
 
-    // Define the packet type and codec with the correct namespace and path as a String
-    public static final CustomPacketPayload.Type<KronaCountSyncPacket> TYPE = CustomPacketPayload.createType(OquaMod.MOD_ID + ":krona_sync");  // Corrected to pass the ID as a String
+    // Define the packet type and codec with the correct namespace and path
+    public static final CustomPacketPayload.Type<KronaCountSyncPacket> TYPE = CustomPacketPayload.createType("oquamod_krona_sync");
     public static final StreamCodec<FriendlyByteBuf, KronaCountSyncPacket> CODEC = StreamCodec.of(KronaCountSyncPacket::encode, KronaCountSyncPacket::decode);
 
     private final int kronaCount;

@@ -7,18 +7,13 @@ import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;  // Correct ResourceLocation import
 import net.orquatic.oquamod.OquaMod;
 import org.jetbrains.annotations.NotNull;
 
 public class KronaCountSyncPacket implements CustomPacketPayload {
 
-    // Fix ResourceLocation issue by using the proper method
-// Pass the correct namespace:path String directly
-    public static final CustomPacketPayload.Type<KronaCountSyncPacket> TYPE =
-            CustomPacketPayload.createType("oquamod_krona_sync");  // Corrected to use a String
-
-
+    // Define the packet type and codec with the correct namespace and path as a String
+    public static final CustomPacketPayload.Type<KronaCountSyncPacket> TYPE = CustomPacketPayload.createType(OquaMod.MOD_ID + ":krona_sync");  // Corrected to pass the ID as a String
     public static final StreamCodec<FriendlyByteBuf, KronaCountSyncPacket> CODEC = StreamCodec.of(KronaCountSyncPacket::encode, KronaCountSyncPacket::decode);
 
     private final int kronaCount;

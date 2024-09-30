@@ -7,11 +7,10 @@ import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 public class OquaModNetwork {
 
     // Register payload handlers
-// Register the KronaCountSyncPacket with the correct namespace and path
     public static void registerPayloadHandlers(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar("1.0");  // Register payloads with version 1.0
 
-        // Ensure the correct namespace ("oquamod"), not "minecraft"
+        // Ensure the namespace is correct and follows "namespace:path" format
         registrar.playToClient(KronaCountSyncPacket.TYPE, KronaCountSyncPacket.CODEC, KronaCountSyncPacket::handle);
     }
 

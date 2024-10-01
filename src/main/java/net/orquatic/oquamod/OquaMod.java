@@ -28,6 +28,7 @@ public class OquaMod {
     private static ResourceLocation KRONA_TEXTURE;
     private static boolean textureLoaded = false;
 
+
     // EntityDataAccessor for Krona count
     public static final EntityDataAccessor<Integer> KRONA_COUNT_KEY = SynchedEntityData.defineId(Player.class, EntityDataSerializers.INT);
 
@@ -56,6 +57,7 @@ public class OquaMod {
         OquaModNetwork.registerPayloadHandlers(event);
     }
 
+
     // Method to initialize the Krona count on a new player
     public static void initKronaCount(Player player) {
         player.getEntityData().set(KRONA_COUNT_KEY, 0);  // Initialize Krona count to 0
@@ -68,6 +70,8 @@ public class OquaMod {
             OquaModNetwork.sendKronaSync((ServerPlayer) player, kronaCount);  // Send packet to sync with client
         }
     }
+
+
 
     // Class to handle client-side GUI rendering
     public static class OquaModClientEvents {

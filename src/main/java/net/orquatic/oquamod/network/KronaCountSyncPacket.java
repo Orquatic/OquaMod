@@ -1,20 +1,14 @@
 package net.orquatic.oquamod.network;
 
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.orquatic.oquamod.OquaMod;
-import org.jetbrains.annotations.NotNull;
+import net.orquatic.oquamod.krona.KronaDataCapability;
 
 public class KronaCountSyncPacket implements CustomPacketPayload {
-
-    // Define the packet type and codec with the correct namespace and path
-    public static final CustomPacketPayload.Type<KronaCountSyncPacket> TYPE = CustomPacketPayload.createType("oquamod_krona_sync");
-    public static final StreamCodec<FriendlyByteBuf, KronaCountSyncPacket> CODEC = StreamCodec.of(KronaCountSyncPacket::encode, KronaCountSyncPacket::decode);
 
     private final int kronaCount;
 
@@ -22,38 +16,27 @@ public class KronaCountSyncPacket implements CustomPacketPayload {
         this.kronaCount = kronaCount;
     }
 
-    // Encode the packet
     public static void encode(FriendlyByteBuf buf, KronaCountSyncPacket packet) {
-        buf.writeInt(packet.kronaCount);  // Write Krona count into the buffer
+        buf.writeInt(packet.kronaCount);
     }
 
-    // Decode the packet
     public static KronaCountSyncPacket decode(FriendlyByteBuf buf) {
-        return new KronaCountSyncPacket(buf.readInt());  // Read Krona count from the buffer
+        return new KronaCountSyncPacket(buf.readInt());
     }
 
-    // Handle the packet with IPayloadContext
     public static void handle(KronaCountSyncPacket packet, IPayloadContext context) {
-        Player player = context.player();  // Get player from context
+        Player player = context.player();
 
-        if (context.flow() == PacketFlow.SERVERBOUND && player instanceof ServerPlayer serverPlayer) {
-            serverPlayer.getEntityData().set(OquaMod.KRONA_COUNT_KEY, packet.kronaCount);  // Update server-side Krona count
-
-            // Sync to the client
-            OquaModNetwork.sendKronaSync(serverPlayer, packet.kronaCount);
-        } else if (context.flow() == PacketFlow.CLIENTBOUND) {
-            // Update client-side Krona count for UI
-            player.getEntityData().set(OquaMod.KRONA_COUNT_KEY, packet.kronaCount);
+        if (player instanceof ServerPlayer serverPlayer) {
+            // Update server-side krona count using capabilities
+            player.getCapability(KronaDataCapability.KRONA_CAPABILITY).ifPresent(krona -> {
+                krona.setKronaCount(packet.kronaCount);
+            });
+        } else {
+            // Client-side update for UI or display purposes
+            player.getCapability(IKronaData.h).ifPresent(krona -> {
+                krona.setKronaCount(packet.kronaCount);
+            });
         }
-
-        // If tasks need to be done on the main thread, enqueue them
-        context.enqueueWork(() -> {
-            // Main-thread tasks if needed
-        });
-    }
-
-    @Override
-    public CustomPacketPayload.@NotNull Type<?> type() {
-        return TYPE;  // Return the packet type
     }
 }
